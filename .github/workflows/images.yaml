@@ -31,7 +31,8 @@ on:
           - prod
 
 env:
-  REGISTRY: robotshopdevacr.azurecr.io
+  REGISTRY_NAME: robotshopdevacr
+  REGISTRY_URL: robotshopdevacr.azurecr.io
 
 jobs:
   sync-image:
@@ -57,7 +58,7 @@ jobs:
             echo "Configured Azure creds"
 
       - name: Log in to ACR
-        run: az acr login --name robotshopregistry
+        run: az acr login --name ${{ env.REGISTRY_NAME }}
 
       - name: Pull from Docker Hub
         run: |
@@ -71,7 +72,7 @@ jobs:
           IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
-          ACR_IMAGE="${{ env.REGISTRY }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
+          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
 
           echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
           docker tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
@@ -84,7 +85,7 @@ jobs:
           IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
-          ACR_IMAGE="${{ env.REGISTRY }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
+          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
 
           echo "Deleting local images to free up space"
           docker rmi ${IMAGE}:${SOURCE_TAG}
