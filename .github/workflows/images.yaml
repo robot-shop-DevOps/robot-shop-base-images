@@ -1,0 +1,91 @@
+name: Pull and Push Base Docker Images to ACR
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: "Select the base image to pull from Docker Hub"
+        required: true
+        type: choice
+        options:
+          - mysql
+          - redis
+          - rabbitmq
+
+      source_tag:
+        description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
+        required: true
+        default: "latest"
+
+      target_tag:
+        description: "Tag to push into ACR (e.g. 5.7, internal, latest)"
+        required: true
+        default: "latest"
+
+      environment:
+        description: "Select the target environment for ACR"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  REGISTRY: robotshopdevacr.azurecr.io
+
+jobs:
+  sync-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Azure Credentials   
+        run: |
+            if [[ ${{ inputs.environment }} = "dev" ]]; then  
+            echo "Using dev environment"
+            echo "ARM_CLIENT_ID=${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_ID_ACR }}" >> $GITHUB_ENV
+            echo "ARM_CLIENT_SECRET=${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_SECRET_ACR }}" >> $GITHUB_ENV
+            echo "ARM_SUBSCRIPTION_ID=${{ secrets.ROBOT_SHOP_DEV_AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+
+            elif [[ ${{ inputs.environment }} = "prod" ]]; then
+            echo "Using prod environment"
+            echo "ARM_CLIENT_ID=${{ secrets.ROBOT_SHOP_PROD_AZURE_CLIENT_ID_ACR }}" >> $GITHUB_ENV
+            echo "ARM_CLIENT_SECRET=${{ secrets.ROBOT_SHOP_PROD_AZURE_CLIENT_SECRET_ACR }}" >> $GITHUB_ENV
+            echo "ARM_SUBSCRIPTION_ID=${{ secrets.ROBOT_SHOP_PROD_AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+
+            fi
+
+            echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+            echo "Configured Azure creds"
+
+      - name: Log in to ACR
+        run: az acr login --name robotshopregistry
+
+      - name: Pull from Docker Hub
+        run: |
+          IMAGE="${{ github.event.inputs.image }}"
+          SOURCE_TAG="${{ github.event.inputs.source_tag }}"
+          echo "Pulling image from Docker Hub: ${IMAGE}:${SOURCE_TAG}"
+          docker pull ${IMAGE}:${SOURCE_TAG}
+
+      - name: Tag and push to ACR
+        run: |
+          IMAGE="${{ github.event.inputs.image }}"
+          SOURCE_TAG="${{ github.event.inputs.source_tag }}"
+          TARGET_TAG="${{ github.event.inputs.target_tag }}"
+          ACR_IMAGE="${{ env.REGISTRY }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
+
+          echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
+          docker tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
+
+          echo "Pushing ${ACR_IMAGE} to ACR"
+          docker push ${ACR_IMAGE}
+
+      - name: Delete Local Images
+        run: |
+          IMAGE="${{ github.event.inputs.image }}"
+          SOURCE_TAG="${{ github.event.inputs.source_tag }}"
+          TARGET_TAG="${{ github.event.inputs.target_tag }}"
+          ACR_IMAGE="${{ env.REGISTRY }}/baseimages/${IMAGE}/${IMAGE}:${TARGET_TAG}"
+
+          echo "Deleting local images to free up space"
+          docker rmi ${IMAGE}:${SOURCE_TAG}
+          docker rmi ${ACR_IMAGE}
