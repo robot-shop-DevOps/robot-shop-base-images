@@ -72,7 +72,7 @@ jobs:
           IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
-          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}/${TARGET_TAG}"
+          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
           docker tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
@@ -85,7 +85,7 @@ jobs:
           IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
-          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}/${TARGET_TAG}"
+          ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Deleting local images to free up space"
           docker rmi ${IMAGE}:${SOURCE_TAG}
