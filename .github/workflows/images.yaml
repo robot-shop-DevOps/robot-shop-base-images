@@ -58,15 +58,17 @@ jobs:
             echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
             echo "Configured Azure creds"
 
-      - name: Log in to ACR
-        run: az acr login --name ${{ env.REGISTRY_NAME }}
+      - name: Log in to ACR with Buildah
+        run: |
+          Token=$(az acr login --name ${{ env.REGISTRY_NAME }} --expose-token --output json | jq -r '.accessToken')   
+          buildah login ${{ env.REGISTRY_URL }} -u 00000000-0000-0000-0000-000000000000 -p $Token 
 
-      - name: Pull from Docker Hub
+      - name: Pull Image from Docker Hub
         run: |
           IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           echo "Pulling image from Docker Hub: ${IMAGE}:${SOURCE_TAG}"
-          docker pull ${IMAGE}:${SOURCE_TAG}
+          buildah pull ${IMAGE}:${SOURCE_TAG}
 
       - name: Tag and push to ACR
         run: |
@@ -76,10 +78,10 @@ jobs:
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
-          docker tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
+          buildah tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
 
           echo "Pushing ${ACR_IMAGE} to ACR"
-          docker push ${ACR_IMAGE}
+          buildah push ${ACR_IMAGE}
 
       - name: Delete Local Images
         run: |
@@ -89,5 +91,5 @@ jobs:
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Deleting local images to free up space"
-          docker rmi ${IMAGE}:${SOURCE_TAG}
-          docker rmi ${ACR_IMAGE}
+          buildah rmi ${IMAGE}:${SOURCE_TAG}
+          buildah rmi ${ACR_IMAGE}
