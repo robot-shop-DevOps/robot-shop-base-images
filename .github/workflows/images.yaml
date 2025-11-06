@@ -66,31 +66,31 @@ jobs:
 
       - name: Pull Image from Docker Hub
         run: |
-          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
+          IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           echo "Pulling image from Docker Hub: ${IMAGE}:${SOURCE_TAG}"
-          buildah pull ${IMAGE}:${SOURCE_TAG}
+          buildah pull ${DOCKER_REGISTRY}/${IMAGE}:${SOURCE_TAG}
 
       - name: Tag and push to ACR
         run: |
-          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
+          IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
-          buildah tag ${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
+          buildah tag ${DOCKER_REGISTRY}/${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
 
           echo "Pushing ${ACR_IMAGE} to ACR"
           buildah push ${ACR_IMAGE}
 
       - name: Delete Local Images
         run: |
-          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
+          IMAGE="${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Deleting local images to free up space"
-          buildah rmi ${IMAGE}:${SOURCE_TAG}
+          buildah rmi ${DOCKER_REGISTRY}/${IMAGE}:${SOURCE_TAG}
           buildah rmi ${ACR_IMAGE}
