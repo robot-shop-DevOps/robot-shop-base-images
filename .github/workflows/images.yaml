@@ -37,7 +37,7 @@ env:
 
 jobs:
   sync-image:
-    runs-on: robot-shop-runner
+    runs-on: robot-shop-runner-azure-dev
     steps:
       - name: Set Azure Credentials   
         run: |
