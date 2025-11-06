@@ -34,6 +34,7 @@ on:
 env:
   REGISTRY_NAME: robotshopdevacr
   REGISTRY_URL: robotshopdevacr.azurecr.io
+  DOCKER_REGISTRY: docker.io/library
 
 jobs:
   sync-image:
@@ -65,14 +66,14 @@ jobs:
 
       - name: Pull Image from Docker Hub
         run: |
-          IMAGE="${{ github.event.inputs.image }}"
+          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           echo "Pulling image from Docker Hub: ${IMAGE}:${SOURCE_TAG}"
           buildah pull ${IMAGE}:${SOURCE_TAG}
 
       - name: Tag and push to ACR
         run: |
-          IMAGE="${{ github.event.inputs.image }}"
+          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
@@ -85,7 +86,7 @@ jobs:
 
       - name: Delete Local Images
         run: |
-          IMAGE="${{ github.event.inputs.image }}"
+          IMAGE="${DOCKER_REGISTRY}/${{ github.event.inputs.image }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
