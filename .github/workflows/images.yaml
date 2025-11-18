@@ -18,6 +18,7 @@ on:
           - python
           - golang
           - alpine
+          - maven
 
       source_tag:
         description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
