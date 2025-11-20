@@ -19,6 +19,7 @@ on:
           - golang
           - alpine
           - maven
+          - composer
 
       source_tag:
         description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
