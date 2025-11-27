@@ -70,8 +70,9 @@ jobs:
 
       - name: Log in to ACR with Buildah
         run: |
-          Token=$(az acr login --name ${{ env.REGISTRY_NAME }} --expose-token --output json | jq -r '.accessToken')   
-          buildah login ${{ env.REGISTRY_URL }} -u 00000000-0000-0000-0000-000000000000 -p $Token 
+          buildah login ${{ env.REGISTRY_URL }} \
+          -u ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_ID_ACR }} \
+          -p ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_SECRET_ACR }} 
 
       - name: Pull Image from Docker Hub
         run: |
