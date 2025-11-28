@@ -27,8 +27,7 @@ on:
         required: true
         type: choice
         options:
-          - docker.io/library
-          - quay.io
+          - docker.io
 
       source_tag:
         description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
@@ -80,43 +79,54 @@ jobs:
           -u ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_ID_ACR }} \
           -p ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_SECRET_ACR }} 
 
-      - name: Log in to Registry
-        if: github.event.inputs.registry == 'quay.io'
-        run: |
-          buildah login quay.io \
-          -u ${{ secrets.QUAY_ROBOT_USER }} \
-          -p ${{ secrets.QUAY_ROBOT_TOKEN }}
-
-      - name: Pull Image from Registry
+      - name: Generate full image
         run: |
           IMAGE="${{ github.event.inputs.image }}"
           REGISTRY="${{ github.event.inputs.registry }}"
+
+          if [[ "$REGISTRY" == "docker.io" ]]; then
+              if [[ "$IMAGE" == *"/"* ]]; then
+                  FULL_IMAGE="${REGISTRY}/${IMAGE}"
+              else
+                  FULL_IMAGE="${REGISTRY}/library/${IMAGE}"
+              fi
+          else
+              if [[ "$IMAGE" != *"/"* ]]; then
+                  echo "ERROR: Registry $REGISTRY requires explicit namespace for image '$IMAGE'."
+                  exit 1
+              fi
+              FULL_IMAGE="${REGISTRY}/${IMAGE}"
+          fi
+
+          echo "FULL_IMAGE=$FULL_IMAGE" >> $GITHUB_ENV
+
+      - name: Pull Image from Registry
+        run: |
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
-          echo "Pulling image from Registry: ${IMAGE}:${SOURCE_TAG}"
-          buildah pull ${REGISTRY}/${IMAGE}:${SOURCE_TAG}
+
+          echo "Pulling image from Registry: ${{ env.FULL_IMAGE }}:${SOURCE_TAG}"
+          buildah pull "${{ env.FULL_IMAGE }}:${SOURCE_TAG}"
 
       - name: Tag and push to ACR
         run: |
           IMAGE="${{ github.event.inputs.image }}"
-          REGISTRY="${{ github.event.inputs.registry }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.ACR_REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
-          echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${ACR_IMAGE}"
-          buildah tag ${REGISTRY}/${IMAGE}:${SOURCE_TAG} ${ACR_IMAGE}
+          echo "Retagging ${{ env.FULL_IMAGE }}:${SOURCE_TAG} -> ${ACR_IMAGE}"
+          buildah tag "${{ env.FULL_IMAGE }}:${SOURCE_TAG}" "${ACR_IMAGE}"
 
           echo "Pushing ${ACR_IMAGE} to ACR"
-          buildah push ${ACR_IMAGE}
+          buildah push "${ACR_IMAGE}"
 
       - name: Delete Local Images
         run: |
           IMAGE="${{ github.event.inputs.image }}"
-          REGISTRY="${{ github.event.inputs.registry }}"
           SOURCE_TAG="${{ github.event.inputs.source_tag }}"
           TARGET_TAG="${{ github.event.inputs.target_tag }}"
           ACR_IMAGE="${{ env.ACR_REGISTRY_URL }}/baseimages/${IMAGE}:${TARGET_TAG}"
 
           echo "Deleting local images to free up space"
-          buildah rmi ${REGISTRY}/${IMAGE}:${SOURCE_TAG}
-          buildah rmi ${ACR_IMAGE}
+          buildah rmi "${{ env.FULL_IMAGE }}:${SOURCE_TAG}"
+          buildah rmi "${ACR_IMAGE}"
