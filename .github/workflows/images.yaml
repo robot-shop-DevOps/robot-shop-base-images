@@ -80,12 +80,12 @@ jobs:
           -u ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_ID_ACR }} \
           -p ${{ secrets.ROBOT_SHOP_DEV_AZURE_CLIENT_SECRET_ACR }} 
 
-      # - name: Log in to Registry
-      #   if: ${{ github.event.inputs.registry == "quay.io" }} 
-      #   run: |
-      #     buildah login quay.io \
-      #     -u ${{ secrets.QUAY_ROBOT_USER }} \
-      #     -p ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - name: Log in to Registry
+        if: ${{ github.event.inputs.registry == "quay.io" }} 
+        run: |
+          buildah login quay.io \
+          -u ${{ secrets.QUAY_ROBOT_USER }} \
+          -p ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Pull Image from Registry
         run: |
