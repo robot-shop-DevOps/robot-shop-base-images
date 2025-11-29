@@ -21,6 +21,7 @@ on:
           - maven
           - composer
           - haproxytech/kubernetes-ingress
+          - fluent/fluent-bit
 
       registry:
         description: "Select the registry to pull the base image from"
