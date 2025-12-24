@@ -22,6 +22,10 @@ on:
           - composer
           - haproxytech/kubernetes-ingress
           - fluent/fluent-bit
+          - prometheus/prometheus
+          - prometheus/node-exporter
+          - prometheus-operator/prometheus-config-reloader
+          - kube-state-metrics/kube-state-metrics
 
       registry:
         description: "Select the registry to pull the base image from"
@@ -29,6 +33,8 @@ on:
         type: choice
         options:
           - docker.io
+          - quay.io
+          - registry.k8s.io
 
       source_tag:
         description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
@@ -85,7 +91,7 @@ jobs:
           IMAGE="${{ github.event.inputs.image }}"
           REGISTRY="${{ github.event.inputs.registry }}"
 
-          if [[ "$REGISTRY" == "docker.io" ]]; then
+          if [[ "$REGISTRY" == "docker.io" || "$REGISTRY" == "quay.io" || "$REGISTRY" == "registry.k8s.io" ]]; then
               if [[ "$IMAGE" == *"/"* ]]; then
                   FULL_IMAGE="${REGISTRY}/${IMAGE}"
               else
