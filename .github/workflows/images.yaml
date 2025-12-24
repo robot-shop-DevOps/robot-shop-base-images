@@ -25,6 +25,7 @@ on:
           - prometheus/prometheus
           - prometheus/node-exporter
           - prometheus-operator/prometheus-config-reloader
+          - prometheus-operator/admission-webhook
           - kube-state-metrics/kube-state-metrics
 
       registry:
