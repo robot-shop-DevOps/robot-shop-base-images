@@ -64,3 +64,4 @@ jobs:
       SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
       TARGET_TAG: ${{ github.event.inputs.TARGET_TAG }}
       ENVIRONMENT: ${{ github.event.inputs.ENVIRONMENT }}
+    secrets: inherit
