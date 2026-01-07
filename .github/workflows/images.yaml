@@ -59,8 +59,8 @@ jobs:
   deploy:
     uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images.yaml@main
     with:
-      IMAGE: ${{ github.events.inputs.IMAGE }}
-      REGISTRY: ${{ github.events.inputs.REGISTRY }}
-      SOURCE_TAG: ${{ github.events.inputs.SOURCE_TAG }}
-      TARGET_TAG: ${{ github.events.inputs.TARGET_TAG }}
-      ENVIRONMENT: ${{ github.events.inputs.ENVIRONMENT }}
+      IMAGE: ${{ github.event.inputs.IMAGE }}
+      REGISTRY: ${{ github.event.inputs.REGISTRY }}
+      SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
+      TARGET_TAG: ${{ github.event.inputs.TARGET_TAG }}
+      ENVIRONMENT: ${{ github.event.inputs.ENVIRONMENT }}
