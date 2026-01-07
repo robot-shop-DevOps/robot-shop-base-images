@@ -57,7 +57,7 @@ on:
 
 jobs:
   deploy:
-    uses: robot-shop/robot-shop-github-actions/.github/workflows/base-images.yaml@main
+    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images.yaml@main
     with:
       IMAGE: ${{ github.events.inputs.IMAGE }}
       REGISTRY: ${{ github.events.inputs.REGISTRY }}
