@@ -56,7 +56,7 @@ on:
         default: "latest"
 
       ENVIRONMENT:
-        description: "Select the target environment for ACR"
+        description: "Select the target environment for GCP Artifact Registry"
         required: true
         type: choice
         options:
