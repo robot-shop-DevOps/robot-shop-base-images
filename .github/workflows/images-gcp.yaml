@@ -3,6 +3,14 @@ name: Pull and Push Base Docker Images to Google Artifact Registry
 on:
   workflow_dispatch:
     inputs:
+      RUNNER_GROUP:
+        required: true
+        type: string
+
+      RUNNER_LABEL:
+        required: true
+        type: string
+
       IMAGE:
         description: "Select the base image to pull"
         required: true
@@ -57,8 +65,10 @@ on:
 
 jobs:
   deploy:
-    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images-gcp.yaml@main
+    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images-gcp.yaml@gcp
     with:
+      RUNNER_GROUP: ${{ github.event.inputs.RUNNER_GROUP }}
+      RUNNER_LABEL: ${{ github.event.inputs.RUNNER_LABEL }}
       IMAGE: ${{ github.event.inputs.IMAGE }}
       REGISTRY: ${{ github.event.inputs.REGISTRY }}
       SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
