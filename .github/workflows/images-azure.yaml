@@ -1,0 +1,67 @@
+name: Pull and Push Base Docker Images to ACR
+
+on:
+  workflow_dispatch:
+    inputs:
+      IMAGE:
+        description: "Select the base image to pull"
+        required: true
+        type: choice
+        options:
+          - mysql
+          - mongo
+          - redis
+          - rabbitmq
+          - node
+          - eclipse-temurin
+          - php
+          - python
+          - golang
+          - alpine
+          - maven
+          - composer
+          - haproxytech/kubernetes-ingress
+          - fluent/fluent-bit
+          - prometheus/prometheus
+          - prometheus/node-exporter
+          - prometheus-operator/prometheus-config-reloader
+          - prometheus-operator/admission-webhook
+          - kube-state-metrics/kube-state-metrics
+
+      REGISTRY:
+        description: "Select the registry to pull the base image from"
+        required: true
+        type: choice
+        options:
+          - docker.io
+          - quay.io
+          - registry.k8s.io
+
+      SOURCE_TAG:
+        description: "Tag to pull from Docker Hub (e.g. 5.7, latest)"
+        required: true
+        default: "latest"
+
+      TARGET_TAG:
+        description: "Tag to push into ACR (e.g. 5.7, internal, latest)"
+        required: true
+        default: "latest"
+
+      ENVIRONMENT:
+        description: "Select the target environment for ACR"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  deploy:
+    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images-azure.yaml@main
+    with:
+      IMAGE: ${{ github.event.inputs.IMAGE }}
+      REGISTRY: ${{ github.event.inputs.REGISTRY }}
+      SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
+      TARGET_TAG: ${{ github.event.inputs.TARGET_TAG }}
+      ENVIRONMENT: ${{ github.event.inputs.ENVIRONMENT }}
+    secrets: inherit
