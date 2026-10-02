@@ -3,14 +3,6 @@ name: Pull and Push Base Docker Images to Google Artifact Registry
 on:
   workflow_dispatch:
     inputs:
-      RUNNER_GROUP:
-        required: true
-        type: string
-
-      RUNNER_LABEL:
-        required: false
-        type: string
-
       IMAGE:
         description: "Base image to pull"
         required: true
