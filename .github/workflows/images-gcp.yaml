@@ -37,10 +37,8 @@ on:
 
 jobs:
   deploy:
-    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/base-images-gcp.yaml@gcp
+    uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/gcp-base-images.yaml@gcp
     with:
-      RUNNER_GROUP: ${{ github.event.inputs.RUNNER_GROUP }}
-      RUNNER_LABEL: ${{ github.event.inputs.RUNNER_LABEL }}
       IMAGE: ${{ github.event.inputs.IMAGE }}
       REGISTRY: ${{ github.event.inputs.REGISTRY }}
       SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
