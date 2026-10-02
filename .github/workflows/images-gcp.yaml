@@ -1,6 +1,6 @@
 name: Pull and Push Base Docker Images to Google Artifact Registry
 
-run-name: "Pull: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE }}:${{ inputs.SOURCE_TAG }} -> Push: ${{ inputs.ENVIRONMENT }}-GAR:${{ inputs.TARGET_TAG }} [by @${{ github.actor }}]"
+run-name: "Pull: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE }}:${{ inputs.SOURCE_TAG }} -> Push: ${{ inputs.ENVIRONMENT }}-GAR:${{ inputs.TARGET_TAG }}"
 
 on:
   workflow_dispatch:
