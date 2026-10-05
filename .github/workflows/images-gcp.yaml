@@ -5,8 +5,14 @@ run-name: "Pull: ${{ inputs.REGISTRY }}/${{ inputs.IMAGE }}:${{ inputs.SOURCE_TA
 on:
   workflow_dispatch:
     inputs:
-      IMAGE:
+      SOURCE_IMAGE:
         description: "Base image to pull"
+        required: true
+        type: string
+        default: ""
+
+      TARGET_IMAGE:
+        description: "Base image to push"
         required: true
         type: string
         default: ""
@@ -41,7 +47,8 @@ jobs:
   deploy:
     uses: robot-shop-DevOps/robot-shop-github-actions/.github/workflows/gcp-base-images.yaml@gcp
     with:
-      IMAGE: ${{ github.event.inputs.IMAGE }}
+      SOURCE_IMAGE: ${{ github.event.inputs.SOURCE_IMAGE }}
+      TARGET_IMAGE: ${{ github.event.inputs.TARGET_IMAGE }}
       REGISTRY: ${{ github.event.inputs.REGISTRY }}
       SOURCE_TAG: ${{ github.event.inputs.SOURCE_TAG }}
       TARGET_TAG: ${{ github.event.inputs.TARGET_TAG }}
